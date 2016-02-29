@@ -1,0 +1,25 @@
+{
+    "name": "meng-tian/async-soap-guzzle",
+    "description": "An asynchronous SOAP client build on top of Guzzle.",
+    "keywords": ["SOAP", "asynchronous", "Guzzle"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Meng Tian",
+            "email": "tianmeng94@hotmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0",
+        "meng-tian/php-async-soap": "~0.1.0",
+        "meng-tian/php-soap-interpreter": "~1.0",
+        "meng-tian/soap-http-binding": "~0.1.0",
+        "guzzlehttp/guzzle": "^6.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.8"
+    },
+    "autoload": {
+        "psr-4": {"Meng\\AsyncSoap\\Guzzle\\": "src/"}
+    }
+}
