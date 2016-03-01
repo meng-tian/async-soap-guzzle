@@ -25,6 +25,11 @@ class SoapClient implements SoapClientInterface
         $this->httpBinding = $httpBinding;
     }
 
+    public function __call($name, $arguments)
+    {
+        return $this->callAsync($name, $arguments);
+    }
+
     public function call($name, array $arguments, array $options = null, $inputHeaders = null, array &$outputHeaders = null)
     {
         $callPromise = $this->callAsync($name, $arguments, $options, $inputHeaders, $outputHeaders);
