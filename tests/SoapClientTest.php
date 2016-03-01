@@ -4,6 +4,7 @@ use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
 use Meng\Soap\HttpBinding\RequestBuilder;
 
+//todo try other options, e.g. classmap; try non-wsdl mode; try other web services.
 class SoapClientTest extends PHPUnit_Framework_TestCase
 {
     /** @var  Factory */
@@ -21,8 +22,8 @@ class SoapClientTest extends PHPUnit_Framework_TestCase
     {
         $client = $this->factory->create(
             new Client(),
-            'http://www.webservicex.net/Statistics.asmx?WSDL',
-            new RequestBuilder()
+            new RequestBuilder(),
+            'http://www.webservicex.net/Statistics.asmx?WSDL'
         );
         $response = $client->call('GetStatistics', [['X' => [1,2,3]]]);
         $this->assertNotEmpty($response);
@@ -30,21 +31,68 @@ class SoapClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @dataProvider webServicesProvider
      */
-    public function callAsync()
+    public function callAsync($wsdl, $options, $function, $args, $contains)
     {
         $client = $this->factory->create(
             new Client(),
-            'http://www.webservicex.net/Statistics.asmx?WSDL',
-            new RequestBuilder()
+            new RequestBuilder(),
+            $wsdl,
+            $options
         );
         $response = null;
-        $promise = $client->callAsync('GetStatistics', [['X' => [1,2,3]]])->then(
+        $promise = $client->callAsync($function, $args)->then(
             function ($result) use (&$response) {
                 $response = $result;
             }
         );
         $promise->wait();
         $this->assertNotEmpty($response);
+        foreach ($contains as $contain) {
+            $this->assertArrayHasKey($contain, (array)$response);
+        }
+    }
+
+    public function webServicesProvider()
+    {
+        return [
+            [
+                'wsdl' => 'http://www.webservicex.net/Statistics.asmx?WSDL',
+                'options' => [],
+                'function' => 'GetStatistics',
+                'args' => [['X' => [1,2,3]]],
+                'contains' => [
+                    'Sums', 'Average', 'StandardDeviation', 'skewness', 'Kurtosis'
+                ]
+            ],
+            [
+                'wsdl' => 'http://www.webservicex.net/Statistics.asmx?WSDL',
+                'options' => ['soap_version' => SOAP_1_2],
+                'function' => 'GetStatistics',
+                'args' => [['X' => [1,2,3]]],
+                'contains' => [
+                    'Sums', 'Average', 'StandardDeviation', 'skewness', 'Kurtosis'
+                ]
+            ],
+            [
+                'wsdl' => 'http://www.webservicex.net/CurrencyConvertor.asmx?WSDL',
+                'options' => [],
+                'function' => 'ConversionRate',
+                'args' => [['FromCurrency' => 'GBP', 'ToCurrency' => 'USD']],
+                'contains' => [
+                    'ConversionRateResult'
+                ]
+            ],
+            [
+                'wsdl' => 'http://www.webservicex.net/CurrencyConvertor.asmx?WSDL',
+                'options' => ['soap_version' => SOAP_1_2],
+                'function' => 'ConversionRate',
+                'args' => [['FromCurrency' => 'GBP', 'ToCurrency' => 'USD']],
+                'contains' => [
+                    'ConversionRateResult'
+                ]
+            ],
+        ];
     }
 }
