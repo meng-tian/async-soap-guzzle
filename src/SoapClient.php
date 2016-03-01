@@ -9,8 +9,6 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Promise\PromiseInterface;
-use function GuzzleHttp\Psr7\stream_for;
-
 
 class SoapClient implements SoapClientInterface
 {
@@ -74,7 +72,7 @@ class SoapClient implements SoapClientInterface
                 }
                 $this->httpBinding->setEndpoint($soapRequest->getEndpoint());
                 $this->httpBinding->setSoapAction($soapRequest->getSoapAction());
-                $this->httpBinding->setSoapMessage(stream_for($soapRequest->getSoapMessage()));
+                $this->httpBinding->setSoapMessage(\GuzzleHttp\Psr7\stream_for($soapRequest->getSoapMessage()));
                 return $this->httpBinding->getSoapHttpRequest();
             }
         );
