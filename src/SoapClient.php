@@ -27,14 +27,8 @@ class SoapClient implements SoapClientInterface
 
     public function call($name, array $arguments, array $options = null, $inputHeaders = null, array &$outputHeaders = null)
     {
-        $response = null;
-        $callPromise = $this->callAsync($name, $arguments, $options, $inputHeaders, $outputHeaders)->then(
-            function ($result) use (&$response) {
-                $response = $result;
-            }
-        );
-        $callPromise->wait();
-        return $response;
+        $callPromise = $this->callAsync($name, $arguments, $options, $inputHeaders, $outputHeaders);
+        return $callPromise->wait();
     }
 
     public function callAsync($name, array $arguments, array $options = null, $inputHeaders = null, array &$output_headers = null)
