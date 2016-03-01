@@ -1,0 +1,12 @@
+<phpunit>
+    <testsuites>
+        <testsuite name="async-soap-guzzle">
+            <directory>tests/</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory>src</directory>
+        </whitelist>
+    </filter>
+</phpunit>
