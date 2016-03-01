@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class Factory
 {
-    public function create(ClientInterface $client, $wsdl, RequestBuilder $httpBinding, array $options = [])
+    public function create(ClientInterface $client, RequestBuilder $httpBinding, $wsdl, array $options = [])
     {
         $interpreterPromise = $client->requestAsync('GET', $wsdl)->then(
             function (ResponseInterface $response) use ($options) {
