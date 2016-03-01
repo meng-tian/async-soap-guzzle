@@ -1,7 +1,8 @@
 # Asynchronous SOAP client
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/meng-tian/async-soap-guzzle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/meng-tian/async-soap-guzzle/?branch=master)
-An asynchronous SOAP client build on top of Guzzle. The `SoapClient` implements [meng-tian/php-async-soap](https://github.com/meng-tian/php-async-soap)
+
+An asynchronous SOAP client build on top of Guzzle. The `SoapClient` implements [meng-tian/php-async-soap](https://github.com/meng-tian/php-async-soap).
 
 ## Requirement
 PHP 5.5 --enablelibxml --enable-soap
@@ -31,3 +32,6 @@ $result = $client->call('GetStatistics', [['X' => [1,2,3]]]);
 $promise = $client->GetStatistics(['X' => [1,2,3]]);
 $result = $promise->wait();
 ```
+
+## License
+This library is released under [MIT](https://github.com/meng-tian/async-soap-guzzle/blob/master/LICENSE) license.
