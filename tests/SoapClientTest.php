@@ -67,26 +67,8 @@ class SoapClientTest extends PHPUnit_Framework_TestCase
                 ]
             ],
             [
-                'wsdl' => 'http://www.webservicex.net/Statistics.asmx?WSDL',
-                'options' => ['soap_version' => SOAP_1_2],
-                'function' => 'GetStatistics',
-                'args' => [['X' => [1,2,3]]],
-                'contains' => [
-                    'Sums', 'Average', 'StandardDeviation', 'skewness', 'Kurtosis'
-                ]
-            ],
-            [
                 'wsdl' => 'http://www.webservicex.net/CurrencyConvertor.asmx?WSDL',
                 'options' => [],
-                'function' => 'ConversionRate',
-                'args' => [['FromCurrency' => 'GBP', 'ToCurrency' => 'USD']],
-                'contains' => [
-                    'ConversionRateResult'
-                ]
-            ],
-            [
-                'wsdl' => 'http://www.webservicex.net/CurrencyConvertor.asmx?WSDL',
-                'options' => ['soap_version' => SOAP_1_2],
                 'function' => 'ConversionRate',
                 'args' => [['FromCurrency' => 'GBP', 'ToCurrency' => 'USD']],
                 'contains' => [
