@@ -13,7 +13,7 @@ class Factory
     {
         $interpreterPromise = $client->requestAsync('GET', $wsdl)->then(
             function (ResponseInterface $response) use ($options) {
-                $wsdl = $response->getBody()->getContents();
+                $wsdl = $response->getBody()->__toString();
                 return new Interpreter('data://text/plain;base64,' . base64_encode($wsdl), $options);
             }
         );

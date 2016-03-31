@@ -46,7 +46,7 @@ class SoapClient implements SoapClientInterface
                 function (ResponseInterface $response) use ($name, $output_headers) {
                     return $this->deferredInterpreter->then(
                         function (Interpreter $interpreter) use ($response, $name, $output_headers) {
-                            return $interpreter->response($response->getBody()->getContents(), $name, $output_headers);
+                            return $interpreter->response($response->getBody()->__toString(), $name, $output_headers);
                         }
                     );
                 }
