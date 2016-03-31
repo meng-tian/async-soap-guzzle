@@ -41,13 +41,7 @@ class SoapClientTest extends PHPUnit_Framework_TestCase
             $wsdl,
             $options
         );
-        $response = null;
-        $promise = $client->callAsync($function, $args)->then(
-            function ($result) use (&$response) {
-                $response = $result;
-            }
-        );
-        $promise->wait();
+        $response = $client->callAsync($function, $args)->wait();
         $this->assertNotEmpty($response);
         foreach ($contains as $contain) {
             $this->assertArrayHasKey($contain, (array)$response);
