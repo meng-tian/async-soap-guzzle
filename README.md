@@ -21,7 +21,7 @@ use Meng\AsyncSoap\Guzzle\Factory;
 use Meng\Soap\HttpBinding\RequestBuilder;
 
 $factory = new Factory();
-$client = $factory->create(new Client(), new RequestBuilder(), 'http://www.webservicex.net/Statistics.asmx?WSDL');
+$client = $factory->create(new Client(), 'http://www.webservicex.net/Statistics.asmx?WSDL');
 
 // async call
 $promise = $client->callAsync('GetStatistics', [['X' => [1,2,3]]]);
