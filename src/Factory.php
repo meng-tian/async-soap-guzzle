@@ -4,27 +4,29 @@ namespace Meng\AsyncSoap\Guzzle;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Promise\FulfilledPromise;
+use Meng\Soap\HttpBinding\HttpBinding;
 use Meng\Soap\HttpBinding\RequestBuilder;
 use Meng\Soap\Interpreter;
 use Psr\Http\Message\ResponseInterface;
 
 class Factory
 {
-    public function create(ClientInterface $client, RequestBuilder $httpBinding, $wsdl, array $options = [])
+    public function create(ClientInterface $client, $wsdl, array $options = [])
     {
         if (null === $wsdl) {
-            $interpreterPromise = new FulfilledPromise(
-                new Interpreter($wsdl, $options)
+            $httpBindingPromise = new FulfilledPromise(
+                new HttpBinding(new Interpreter($wsdl, $options), new RequestBuilder)
             );
         } else {
-            $interpreterPromise = $client->requestAsync('GET', $wsdl)->then(
+            $httpBindingPromise = $client->requestAsync('GET', $wsdl)->then(
                 function (ResponseInterface $response) use ($options) {
                     $wsdl = $response->getBody()->__toString();
-                    return new Interpreter('data://text/plain;base64,' . base64_encode($wsdl), $options);
+                    $interpreter = new Interpreter('data://text/plain;base64,' . base64_encode($wsdl), $options);
+                    return new HttpBinding($interpreter, new RequestBuilder);
                 }
             );
         }
 
-        return new SoapClient($client, $interpreterPromise, $httpBinding);
+        return new SoapClient($client, $httpBindingPromise);
     }
 }

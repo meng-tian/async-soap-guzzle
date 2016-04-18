@@ -2,7 +2,6 @@
 
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
-use Meng\Soap\HttpBinding\RequestBuilder;
 
 class SoapClientTest extends PHPUnit_Framework_TestCase
 {
@@ -21,7 +20,6 @@ class SoapClientTest extends PHPUnit_Framework_TestCase
     {
         $client = $this->factory->create(
             new Client(),
-            new RequestBuilder(),
             'http://www.webservicex.net/Statistics.asmx?WSDL'
         );
         $response = $client->call('GetStatistics', [['X' => [1,2,3]]]);
@@ -36,7 +34,6 @@ class SoapClientTest extends PHPUnit_Framework_TestCase
     {
         $client = $this->factory->create(
             new Client(),
-            new RequestBuilder(),
             $wsdl,
             $options
         );

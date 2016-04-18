@@ -12,8 +12,7 @@
     "require": {
         "php": ">=5.5.0",
         "meng-tian/php-async-soap": "~1.0",
-        "meng-tian/php-soap-interpreter": "~1.0",
-        "meng-tian/soap-http-binding": "~0.1.0",
+        "meng-tian/soap-http-binding": "~0.2.0",
         "guzzlehttp/guzzle": "^6.1"
     },
     "require-dev": {

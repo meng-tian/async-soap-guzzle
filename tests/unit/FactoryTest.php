@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Meng\Soap\HttpBinding\RequestBuilder;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,7 +15,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
     public function nonWsdlMode()
     {
         $factory = new Factory();
-        $client = $factory->create(new Client(), new RequestBuilder(), null, ['uri'=>'', 'location'=>'']);
+        $client = $factory->create(new Client(), null, ['uri'=>'', 'location'=>'']);
         $this->assertTrue($client instanceof SoapClient);
     }
 
@@ -89,7 +88,7 @@ EOD;
         $handlerMock = new MockHandler([new Response('200', [], $wsdl)]);
         $handler = new HandlerStack($handlerMock);
         $clientMock = new Client(['handler' => $handler]);
-        $client = $factory->create($clientMock, new RequestBuilder(), 'wsdl');
+        $client = $factory->create($clientMock, 'wsdl');
         $this->assertTrue($client instanceof SoapClient);
 
     }
