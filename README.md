@@ -18,7 +18,6 @@ composer install meng-tian/async-soap-guzzle
 ```php
 use GuzzleHttp\Client;
 use Meng\AsyncSoap\Guzzle\Factory;
-use Meng\Soap\HttpBinding\RequestBuilder;
 
 $factory = new Factory();
 $client = $factory->create(new Client(), 'http://www.webservicex.net/Statistics.asmx?WSDL');
