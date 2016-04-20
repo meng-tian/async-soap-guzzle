@@ -67,7 +67,6 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException \GuzzleHttp\Exception\RequestException
      */
     public function magicCallClientReturnError()
     {

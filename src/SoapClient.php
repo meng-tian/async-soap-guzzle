@@ -4,8 +4,8 @@ namespace Meng\AsyncSoap\Guzzle;
 
 use Meng\AsyncSoap\SoapClientInterface;
 use Meng\Soap\HttpBinding\HttpBinding;
-use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise\PromiseInterface;
 
 class SoapClient implements SoapClientInterface
@@ -32,18 +32,23 @@ class SoapClient implements SoapClientInterface
 
     public function callAsync($name, array $arguments, array $options = null, $inputHeaders = null, array &$output_headers = null)
     {
-        return $this->deferredHttpBinding->then(
-            function (HttpBinding $httpBinding) use ($name, $arguments, $options, $inputHeaders) {
+        return \GuzzleHttp\Promise\coroutine(
+            function () use ($name, $arguments, $options, $inputHeaders, $output_headers) {
+                /** @var HttpBinding $httpBinding */
+                $httpBinding = (yield $this->deferredHttpBinding);
                 $request = $httpBinding->request($name, $arguments, $options, $inputHeaders);
-                return $this->client->sendAsync($request);
-            }
-        )->then(
-            function (ResponseInterface $response) use ($name, $output_headers) {
-                return $this->deferredHttpBinding->then(
-                    function (HttpBinding $httpBinding) use ($response, $name, $output_headers) {
-                        return $httpBinding->response($response, $name, $output_headers);
+                try {
+                    $response = (yield $this->client->sendAsync($request));
+                } catch (RequestException $exception) {
+                    $response = $exception->getResponse();
+                } finally {
+                    try {
+                        yield $httpBinding->response($response, $name, $output_headers);
+                    } finally {
+                        $request->getBody()->close();
+                        $response->getBody()->close();
                     }
-                );
+                }
             }
         );
     }
