@@ -30,10 +30,10 @@ class SoapClient implements SoapClientInterface
         return $callPromise->wait();
     }
 
-    public function callAsync($name, array $arguments, array $options = null, $inputHeaders = null, array &$output_headers = null)
+    public function callAsync($name, array $arguments, array $options = null, $inputHeaders = null, array &$outputHeaders = null)
     {
         return \GuzzleHttp\Promise\coroutine(
-            function () use ($name, $arguments, $options, $inputHeaders, $output_headers) {
+            function () use ($name, $arguments, $options, $inputHeaders, &$outputHeaders) {
                 /** @var HttpBinding $httpBinding */
                 $httpBinding = (yield $this->deferredHttpBinding);
                 $request = $httpBinding->request($name, $arguments, $options, $inputHeaders);
@@ -43,7 +43,7 @@ class SoapClient implements SoapClientInterface
                     $response = $exception->getResponse();
                 } finally {
                     try {
-                        yield $httpBinding->response($response, $name, $output_headers);
+                        yield $httpBinding->response($response, $name, $outputHeaders);
                     } finally {
                         $request->getBody()->close();
                         $response->getBody()->close();
