@@ -80,10 +80,19 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
                 'someSoapMethod', [['some-key' => 'some-value']]
             );
 
-        $this->handlerMock->append(GuzzleRequestException::create(new Request('POST', 'www.endpoint.com'), new Response('500')));
+        $response = new Response('500');
+        $this->httpBindingMock->method('response')
+            ->willReturn(
+                'SoapResult'
+            )
+            ->with(
+                $response, 'someSoapMethod', null
+            );
+
+        $this->handlerMock->append(GuzzleRequestException::create(new Request('POST', 'www.endpoint.com'), $response));
 
         $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
-        $client->someSoapMethod(['some-key' => 'some-value'])->wait();
+        $this->assertEquals('SoapResult', $client->someSoapMethod(['some-key' => 'some-value'])->wait());
     }
 
     /**
