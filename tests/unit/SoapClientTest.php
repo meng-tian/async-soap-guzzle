@@ -61,6 +61,8 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
                 'someSoapMethod', [['some-key' => 'some-value']]
             );
 
+        $this->httpBindingMock->expects($this->never())->method('response');
+
         $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
     }
@@ -68,7 +70,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function magicCallClientReturnError()
+    public function magicCall500Response()
     {
         $this->deferredHttpBinding = new FulfilledPromise($this->httpBindingMock);
 
@@ -93,6 +95,55 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
         $this->assertEquals('SoapResult', $client->someSoapMethod(['some-key' => 'some-value'])->wait());
+    }
+
+    /**
+     * @test
+     * @expectedException \GuzzleHttp\Exception\RequestException
+     */
+    public function magicCallResponseNotReceived()
+    {
+        $this->deferredHttpBinding = new FulfilledPromise($this->httpBindingMock);
+
+        $this->httpBindingMock->method('request')
+            ->willReturn(
+                new Request('POST', 'www.endpoint.com')
+            )
+            ->with(
+                'someSoapMethod', [['some-key' => 'some-value']]
+            );
+
+        $this->httpBindingMock->expects($this->never())->method('response');
+
+        $this->handlerMock->append(GuzzleRequestException::create(new Request('POST', 'www.endpoint.com')));
+
+        $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
+        $client->someSoapMethod(['some-key' => 'some-value'])->wait();
+    }
+
+    /**
+     * @test
+     * @expectedException \Exception
+     */
+    public function magicCallUndefinedResponse()
+    {
+        $this->deferredHttpBinding = new FulfilledPromise($this->httpBindingMock);
+
+        $this->httpBindingMock->method('request')
+            ->willReturn(
+                new Request('POST', 'www.endpoint.com')
+            )
+            ->with(
+                'someSoapMethod', [['some-key' => 'some-value']]
+            );
+
+        $this->httpBindingMock->expects($this->never())->method('response');
+
+        $this->handlerMock->append(new \Exception());
+
+        $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
+        $client->someSoapMethod(['some-key' => 'some-value'])->wait();
+
     }
 
     /**

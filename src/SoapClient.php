@@ -7,6 +7,7 @@ use Meng\Soap\HttpBinding\HttpBinding;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise\PromiseInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class SoapClient implements SoapClientInterface
 {
@@ -37,19 +38,30 @@ class SoapClient implements SoapClientInterface
                 /** @var HttpBinding $httpBinding */
                 $httpBinding = (yield $this->deferredHttpBinding);
                 $request = $httpBinding->request($name, $arguments, $options, $inputHeaders);
+
                 try {
                     $response = (yield $this->client->sendAsync($request));
+                    yield $this->parseResponse($httpBinding, $response, $name, $outputHeaders);
                 } catch (RequestException $exception) {
-                    $response = $exception->getResponse();
-                } finally {
-                    try {
-                        yield $httpBinding->response($response, $name, $outputHeaders);
-                    } finally {
-                        $request->getBody()->close();
-                        $response->getBody()->close();
+                    if ($exception->hasResponse()) {
+                        $response = $exception->getResponse();
+                        yield $this->parseResponse($httpBinding, $response, $name, $outputHeaders);
+                    } else {
+                        throw $exception;
                     }
+                } finally {
+                    $request->getBody()->close();
                 }
             }
         );
+    }
+
+    private function parseResponse(HttpBinding $httpBinding, ResponseInterface $response, $name, &$outputHeaders)
+    {
+        try {
+            return $httpBinding->response($response, $name, $outputHeaders);
+        } finally {
+            $response->getBody()->close();
+        }
     }
 }
