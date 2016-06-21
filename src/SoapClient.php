@@ -40,7 +40,8 @@ class SoapClient implements SoapClientInterface
                 $request = $httpBinding->request($name, $arguments, $options, $inputHeaders);
 
                 try {
-                    $response = (yield $this->client->sendAsync($request));
+                    $requestOptions = isset($options['request_options']) ? $options['request_options'] : [];
+                    $response = (yield $this->client->sendAsync($request, $requestOptions));
                     yield $this->parseResponse($httpBinding, $response, $name, $outputHeaders);
                 } catch (RequestException $exception) {
                     if ($exception->hasResponse()) {
