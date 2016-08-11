@@ -24,6 +24,33 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function wsdlMode()
     {
+        $wsdl = $this->getTestWsdl();
+
+        $factory = new Factory();
+        $handlerMock = new MockHandler([new Response('200', [], $wsdl)]);
+        $handler = new HandlerStack($handlerMock);
+        $clientMock = new Client(['handler' => $handler]);
+        $client = $factory->create($clientMock, 'wsdl');
+        $this->assertTrue($client instanceof SoapClient);
+
+    }
+
+    /**
+     * @test
+     */
+    public function acceptWsdlContentToBePassedIn()
+    {
+        $wsdl = $this->getTestWsdl();
+        $factory = new Factory();
+        $clientMock = new Client();
+
+        $soapClient = $factory->create($clientMock, $wsdl);
+
+        $this->assertTrue($soapClient instanceof SoapClient);
+    }
+
+    private function getTestWsdl()
+    {
         // this wsdl adapted from https://www.w3.org/2001/04/wsws-proceedings/uche/wsdl.html
         $wsdl = <<<EOD
 <definitions name="EndorsementSearch"
@@ -84,12 +111,6 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 </definitions>
 EOD;
 
-        $factory = new Factory();
-        $handlerMock = new MockHandler([new Response('200', [], $wsdl)]);
-        $handler = new HandlerStack($handlerMock);
-        $clientMock = new Client(['handler' => $handler]);
-        $client = $factory->create($clientMock, 'wsdl');
-        $this->assertTrue($client instanceof SoapClient);
-
+        return $wsdl;
     }
 }
