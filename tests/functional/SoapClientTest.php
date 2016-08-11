@@ -28,6 +28,23 @@ class SoapClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     */
+    public function callWithWsdlContentPassedInLiterally()
+    {
+        $guzzleClient = new Client();
+        $wsdl = $guzzleClient->get('http://www.webservicex.net/Statistics.asmx?WSDL')->getBody()->getContents();
+
+        $client = $this->factory->create(
+            new Client(),
+            $wsdl
+        );
+        $response = $client->call('GetStatistics', [['X' => [1,2,3]]]);
+
+        $this->assertNotEmpty($response);
+    }
+
+    /**
+     * @test
      * @dataProvider webServicesProvider
      */
     public function callAsync($wsdl, $options, $function, $args, $contains)
