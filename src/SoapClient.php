@@ -11,12 +11,12 @@ use Psr\Http\Message\ResponseInterface;
 
 class SoapClient implements SoapClientInterface
 {
-    private $deferredHttpBinding;
+    private $httpBindingPromise;
     private $client;
 
     public function __construct(ClientInterface $client, PromiseInterface $httpBindingPromise)
     {
-        $this->deferredHttpBinding = $httpBindingPromise;
+        $this->httpBindingPromise = $httpBindingPromise;
         $this->client = $client;
     }
 
@@ -36,17 +36,17 @@ class SoapClient implements SoapClientInterface
         return \GuzzleHttp\Promise\coroutine(
             function () use ($name, $arguments, $options, $inputHeaders, &$outputHeaders) {
                 /** @var HttpBinding $httpBinding */
-                $httpBinding = (yield $this->deferredHttpBinding);
+                $httpBinding = (yield $this->httpBindingPromise);
                 $request = $httpBinding->request($name, $arguments, $options, $inputHeaders);
+                $requestOptions = isset($options['request_options']) ? $options['request_options'] : [];
 
                 try {
-                    $requestOptions = isset($options['request_options']) ? $options['request_options'] : [];
                     $response = (yield $this->client->sendAsync($request, $requestOptions));
-                    yield $this->parseResponse($httpBinding, $response, $name, $outputHeaders);
+                    yield $this->interpretResponse($httpBinding, $response, $name, $outputHeaders);
                 } catch (RequestException $exception) {
                     if ($exception->hasResponse()) {
                         $response = $exception->getResponse();
-                        yield $this->parseResponse($httpBinding, $response, $name, $outputHeaders);
+                        yield $this->interpretResponse($httpBinding, $response, $name, $outputHeaders);
                     } else {
                         throw $exception;
                     }
@@ -57,7 +57,7 @@ class SoapClient implements SoapClientInterface
         );
     }
 
-    private function parseResponse(HttpBinding $httpBinding, ResponseInterface $response, $name, &$outputHeaders)
+    private function interpretResponse(HttpBinding $httpBinding, ResponseInterface $response, $name, &$outputHeaders)
     {
         try {
             return $httpBinding->response($response, $name, $outputHeaders);

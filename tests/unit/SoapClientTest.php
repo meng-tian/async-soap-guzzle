@@ -3,9 +3,11 @@
 namespace Meng\AsyncSoap\Guzzle;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Promise\RejectedPromise;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
@@ -15,16 +17,23 @@ use Meng\Soap\HttpBinding\RequestException;
 
 class SoapClientTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var  MockHandler */
     private $handlerMock;
-    private $clientMock;
+
+    /** @var  ClientInterface */
+    private $client;
+
+    /** @var  \PHPUnit_Framework_MockObject_MockObject */
     private $httpBindingMock;
-    private $deferredHttpBinding;
+
+    /** @var  PromiseInterface */
+    private $httpBindingPromise;
 
     protected function setUp()
     {
         $this->handlerMock = new MockHandler();
         $handler = new HandlerStack($this->handlerMock);
-        $this->clientMock = new Client(['handler' => $handler]);
+        $this->client = new Client(['handler' => $handler]);
 
         $this->httpBindingMock = $this->getMockBuilder(HttpBinding::class)
             ->disableOriginalConstructor()
@@ -38,10 +47,10 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
      */
     public function magicCallDeferredHttpBindingRejected()
     {
-        $this->deferredHttpBinding = new RejectedPromise(new \Exception());
+        $this->httpBindingPromise = new RejectedPromise(new \Exception());
         $this->httpBindingMock->expects($this->never())->method('request');
 
-        $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
+        $client = new SoapClient($this->client, $this->httpBindingPromise);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
     }
 
@@ -51,7 +60,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
      */
     public function magicCallHttpBindingFailed()
     {
-        $this->deferredHttpBinding = new FulfilledPromise($this->httpBindingMock);
+        $this->httpBindingPromise = new FulfilledPromise($this->httpBindingMock);
 
         $this->httpBindingMock->method('request')
             ->will(
@@ -63,7 +72,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
 
         $this->httpBindingMock->expects($this->never())->method('response');
 
-        $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
+        $client = new SoapClient($this->client, $this->httpBindingPromise);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
     }
 
@@ -72,7 +81,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
      */
     public function magicCall500Response()
     {
-        $this->deferredHttpBinding = new FulfilledPromise($this->httpBindingMock);
+        $this->httpBindingPromise = new FulfilledPromise($this->httpBindingMock);
 
         $this->httpBindingMock->method('request')
             ->willReturn(
@@ -93,7 +102,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
 
         $this->handlerMock->append(GuzzleRequestException::create(new Request('POST', 'www.endpoint.com'), $response));
 
-        $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
+        $client = new SoapClient($this->client, $this->httpBindingPromise);
         $this->assertEquals('SoapResult', $client->someSoapMethod(['some-key' => 'some-value'])->wait());
     }
 
@@ -103,7 +112,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
      */
     public function magicCallResponseNotReceived()
     {
-        $this->deferredHttpBinding = new FulfilledPromise($this->httpBindingMock);
+        $this->httpBindingPromise = new FulfilledPromise($this->httpBindingMock);
 
         $this->httpBindingMock->method('request')
             ->willReturn(
@@ -117,7 +126,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
 
         $this->handlerMock->append(GuzzleRequestException::create(new Request('POST', 'www.endpoint.com')));
 
-        $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
+        $client = new SoapClient($this->client, $this->httpBindingPromise);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
     }
 
@@ -127,7 +136,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
      */
     public function magicCallUndefinedResponse()
     {
-        $this->deferredHttpBinding = new FulfilledPromise($this->httpBindingMock);
+        $this->httpBindingPromise = new FulfilledPromise($this->httpBindingMock);
 
         $this->httpBindingMock->method('request')
             ->willReturn(
@@ -141,7 +150,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
 
         $this->handlerMock->append(new \Exception());
 
-        $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
+        $client = new SoapClient($this->client, $this->httpBindingPromise);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
 
     }
@@ -152,7 +161,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
      */
     public function magicCallClientReturnSoapFault()
     {
-        $this->deferredHttpBinding = new FulfilledPromise($this->httpBindingMock);
+        $this->httpBindingPromise = new FulfilledPromise($this->httpBindingMock);
 
         $this->httpBindingMock->method('request')
             ->willReturn(
@@ -173,7 +182,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
 
         $this->handlerMock->append($response);
 
-        $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
+        $client = new SoapClient($this->client, $this->httpBindingPromise);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
     }
 
@@ -182,7 +191,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
      */
     public function magicCallSuccess()
     {
-        $this->deferredHttpBinding = new FulfilledPromise($this->httpBindingMock);
+        $this->httpBindingPromise = new FulfilledPromise($this->httpBindingMock);
 
         $this->httpBindingMock->method('request')
             ->willReturn(
@@ -203,7 +212,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
 
         $this->handlerMock->append($response);
 
-        $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
+        $client = new SoapClient($this->client, $this->httpBindingPromise);
         $this->assertEquals('SoapResult', $client->someSoapMethod(['some-key' => 'some-value'])->wait());
     }
 
@@ -212,7 +221,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
      */
     public function resultsAreEquivalent()
     {
-        $this->deferredHttpBinding = new FulfilledPromise($this->httpBindingMock);
+        $this->httpBindingPromise = new FulfilledPromise($this->httpBindingMock);
 
         $this->httpBindingMock->method('request')
             ->willReturn(
@@ -231,7 +240,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
         $this->handlerMock->append($response);
         $this->handlerMock->append($response);
 
-        $client = new SoapClient($this->clientMock, $this->deferredHttpBinding);
+        $client = new SoapClient($this->client, $this->httpBindingPromise);
         $magicResult = $client->someSoapMethod(['some-key' => 'some-value'])->wait();
         $syncResult = $client->call('someSoapMethod', [['some-key' => 'some-value']]);
         $asyncResult = $client->callAsync('someSoapMethod', [['some-key' => 'some-value']])->wait();
