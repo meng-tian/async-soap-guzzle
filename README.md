@@ -23,11 +23,11 @@ $factory = new Factory();
 $client = $factory->create(new Client(), 'http://www.webservicex.net/Statistics.asmx?WSDL');
 
 // async call
-$promise = $client->callAsync('GetStatistics', [['X' => [1,2,3]]]);
+$promise = $client->callAsync('GetStatistics', ['X' => [1,2,3]]);
 $result = $promise->wait();
 
 // sync call
-$result = $client->call('GetStatistics', [['X' => [1,2,3]]]);
+$result = $client->call('GetStatistics', ['X' => [1,2,3]]);
 
 // magic method
 $promise = $client->GetStatistics(['X' => [1,2,3]]);
