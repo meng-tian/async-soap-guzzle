@@ -11,7 +11,7 @@ PHP 5.5 --enablelibxml --enable-soap
 
 ## Install
 ```
-composer install meng-tian/async-soap-guzzle
+composer require meng-tian/async-soap-guzzle
 ```
 
 ## Usage
