@@ -46,7 +46,7 @@ class Factory
 
     private function isHttpUrl($wsdl)
     {
-        return filter_var($wsdl, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED) !== false
+        return filter_var($wsdl, FILTER_VALIDATE_URL) !== false
             && in_array(parse_url($wsdl, PHP_URL_SCHEME), ['http', 'https']);
     }
 }
