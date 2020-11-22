@@ -13,7 +13,7 @@
         "php": ">=5.5.0",
         "meng-tian/php-async-soap": "~1.0",
         "meng-tian/soap-http-binding": "~0.2.0",
-        "guzzlehttp/guzzle": "^6.1"
+        "guzzlehttp/guzzle": "^6.1|^7.0.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8"
