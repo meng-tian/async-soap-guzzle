@@ -33,7 +33,7 @@ class SoapClient implements SoapClientInterface
 
     public function callAsync($name, array $arguments, array $options = null, $inputHeaders = null, array &$outputHeaders = null)
     {
-        return \GuzzleHttp\Promise\coroutine(
+        return \GuzzleHttp\Promise\Coroutine::of(
             function () use ($name, $arguments, $options, $inputHeaders, &$outputHeaders) {
                 /** @var HttpBinding $httpBinding */
                 $httpBinding = (yield $this->httpBindingPromise);

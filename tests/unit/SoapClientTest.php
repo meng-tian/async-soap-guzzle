@@ -14,8 +14,9 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use Meng\Soap\HttpBinding\HttpBinding;
 use Meng\Soap\HttpBinding\RequestException;
+use PHPUnit\Framework\TestCase;
 
-class SoapClientTest extends \PHPUnit_Framework_TestCase
+class SoapClientTest extends TestCase
 {
     /** @var  MockHandler */
     private $handlerMock;
