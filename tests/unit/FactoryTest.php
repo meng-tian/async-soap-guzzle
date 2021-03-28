@@ -6,8 +6,11 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use Laminas\Diactoros\RequestFactory;
+use Laminas\Diactoros\StreamFactory;
+use PHPUnit\Framework\TestCase;
 
-class FactoryTest extends \PHPUnit_Framework_TestCase
+class FactoryTest extends TestCase
 {
     /**
      * @test
@@ -15,7 +18,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
     public function nonWsdlMode()
     {
         $factory = new Factory();
-        $client = $factory->create(new Client(), null, ['uri'=>'', 'location'=>'']);
+        $client = $factory->create(new Client(), new StreamFactory(), new RequestFactory(), null, ['uri'=>'', 'location'=>'']);
 
         $this->assertTrue($client instanceof SoapClient);
     }
@@ -32,7 +35,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $clientMock = new Client(['handler' => $handler]);
 
         $factory = new Factory();
-        $client = $factory->create($clientMock, 'http://www.mysite.com/wsdl');
+        $client = $factory->create($clientMock, new StreamFactory, new RequestFactory, 'http://www.mysite.com/wsdl');
 
         $this->assertTrue($client instanceof SoapClient);
     }
@@ -43,7 +46,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
     public function wsdlFromLocalFile()
     {
         $factory = new Factory();
-        $client = $factory->create(new Client(), dirname(__FILE__) . DIRECTORY_SEPARATOR . 'example.wsdl');
+        $client = $factory->create(new Client(), new StreamFactory(), new RequestFactory(), dirname(__FILE__) . DIRECTORY_SEPARATOR . 'example.wsdl');
 
         $this->assertTrue($client instanceof SoapClient);
     }
@@ -57,7 +60,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $wsdl = 'data://text/plain;base64,' . base64_encode($wsdlString);
 
         $factory = new Factory();
-        $client = $factory->create(new Client(), $wsdl);
+        $client = $factory->create(new Client(), new StreamFactory(), new RequestFactory(), $wsdl);
 
         $this->assertTrue($client instanceof SoapClient);
     }
