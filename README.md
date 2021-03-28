@@ -7,7 +7,7 @@
 An asynchronous SOAP client build on top of Guzzle. The `SoapClient` implements [meng-tian/php-async-soap](https://github.com/meng-tian/php-async-soap).
 
 ## Requirement
-PHP 5.5 --enablelibxml --enable-soap
+PHP 5.6 --enablelibxml --enable-soap
 
 ## Install
 ```
