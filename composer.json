@@ -10,9 +10,9 @@
         }
     ],
     "require": {
-        "php": ">=5.5.0",
+        "php": ">=5.6.0",
         "meng-tian/php-async-soap": "~1.0",
-        "meng-tian/soap-http-binding": "~0.2.0",
+        "meng-tian/soap-http-binding": "~0.3.0",
         "guzzlehttp/guzzle": "^6.1"
     },
     "require-dev": {
