@@ -59,10 +59,6 @@ class SoapClient implements SoapClientInterface
 
     private function interpretResponse(HttpBinding $httpBinding, ResponseInterface $response, $name, &$outputHeaders)
     {
-        try {
-            return $httpBinding->response($response, $name, $outputHeaders);
-        } finally {
-            $response->getBody()->close();
-        }
+        return $httpBinding->response($response, $name, $outputHeaders);
     }
 }

@@ -253,8 +253,8 @@ class SoapClientTest extends TestCase
         $this->assertEquals($magicResult, $asyncResult);
         $this->assertEquals($syncResult, $asyncResult);
 
-        $this->assertEquals($magicResult, $body);
-        $this->assertEquals($asyncResult, $body);
-        $this->assertEquals($syncResult, $body);
+        $this->assertEquals($body, $magicResult);
+        $this->assertEquals($body, $asyncResult);
+        $this->assertEquals($body, $syncResult);
     }
 }
