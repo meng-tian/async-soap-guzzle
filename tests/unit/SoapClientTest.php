@@ -30,7 +30,7 @@ class SoapClientTest extends TestCase
     /** @var  PromiseInterface */
     private $httpBindingPromise;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->handlerMock = new MockHandler();
         $handler = new HandlerStack($this->handlerMock);
@@ -44,7 +44,6 @@ class SoapClientTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Exception
      */
     public function magicCallDeferredHttpBindingRejected()
     {
@@ -52,12 +51,12 @@ class SoapClientTest extends TestCase
         $this->httpBindingMock->expects($this->never())->method('request');
 
         $client = new SoapClient($this->client, $this->httpBindingPromise);
+        $this->expectException(\Exception::class);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
     }
 
     /**
      * @test
-     * @expectedException \Meng\Soap\HttpBinding\RequestException
      */
     public function magicCallHttpBindingFailed()
     {
@@ -74,6 +73,7 @@ class SoapClientTest extends TestCase
         $this->httpBindingMock->expects($this->never())->method('response');
 
         $client = new SoapClient($this->client, $this->httpBindingPromise);
+        $this->expectException(RequestException::class);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
     }
 
@@ -109,7 +109,6 @@ class SoapClientTest extends TestCase
 
     /**
      * @test
-     * @expectedException \GuzzleHttp\Exception\RequestException
      */
     public function magicCallResponseNotReceived()
     {
@@ -128,12 +127,12 @@ class SoapClientTest extends TestCase
         $this->handlerMock->append(GuzzleRequestException::create(new Request('POST', 'www.endpoint.com')));
 
         $client = new SoapClient($this->client, $this->httpBindingPromise);
+        $this->expectException(GuzzleRequestException::class);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
     }
 
     /**
      * @test
-     * @expectedException \Exception
      */
     public function magicCallUndefinedResponse()
     {
@@ -152,13 +151,13 @@ class SoapClientTest extends TestCase
         $this->handlerMock->append(new \Exception());
 
         $client = new SoapClient($this->client, $this->httpBindingPromise);
+        $this->expectException(\Exception::class);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
 
     }
 
     /**
      * @test
-     * @expectedException \SoapFault
      */
     public function magicCallClientReturnSoapFault()
     {
@@ -184,6 +183,7 @@ class SoapClientTest extends TestCase
         $this->handlerMock->append($response);
 
         $client = new SoapClient($this->client, $this->httpBindingPromise);
+        $this->expectException(\SoapFault::class);
         $client->someSoapMethod(['some-key' => 'some-value'])->wait();
     }
 
